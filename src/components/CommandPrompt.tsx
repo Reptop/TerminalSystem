@@ -45,8 +45,6 @@ export default function CommandPrompt({ onExecute, children }: CommandPromptProp
 
   return (
     <section className="command-card" aria-labelledby="command-prompt-heading">
-      <h2 id="command-prompt-heading">terminalsystem</h2>
-      <p className="prompt-copy">enter terminal commands and view output below</p>
 
       <div className="terminal-window" role="region" aria-label="Terminal output">
 
