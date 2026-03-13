@@ -10,9 +10,9 @@ async function App() {
   const supabase = createClient(supabaseUrl, supabaseKey)
 
   
-  let { data: nodes, error } = await supabase.from('nodes').select('*')
-  console.log(nodes)
-  console.log(error)
+  //let { data: nodes, error } = await supabase.from('nodes').select('*')
+  //console.log(nodes)
+  //console.log(error)
 
   return (
     <main className="app-shell">
