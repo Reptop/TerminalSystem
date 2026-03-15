@@ -1,10 +1,17 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import type { SubmitEventHandler, ReactNode } from 'react'
+import { executeCommand, type CommandResult } from '../utils/commandHandler'
 
 // Created a new type to act as the argument type for the CommandPrompt component
 type CommandPromptProps = {
   children?: ReactNode
   onExecute?: (command: string) => void
+}
+
+type TerminalEntry = {
+  type: 'command' | 'output'
+  content: string
+  success?: boolean
 }
 
 // TODO: Wire onExecute to the backend API to execute and fetch command output
@@ -18,21 +25,46 @@ export default function CommandPrompt({ onExecute, children }: CommandPromptProp
   // `status` tracks whether a command has been submitted or not, which can be used to provide user feedback
   const [status, setStatus] = useState<'idle' | 'submitted'>('idle')
 
-  // `history` is an array that stores all previously submitted commands. Thiis is optional tbh
-  const [history, setHistory] = useState<string[]>([])
+  // `history` is an array that stores all previously submitted commands and their outputs
+  const [history, setHistory] = useState<TerminalEntry[]>([])
+
+  // Ref to the terminal output div for auto-scrolling
+  const terminalOutputRef = useRef<HTMLDivElement>(null)
+
+  // Auto-scroll to bottom when history changes
+  useEffect(() => {
+    if (terminalOutputRef.current) {
+      terminalOutputRef.current.scrollTop = terminalOutputRef.current.scrollHeight
+    }
+  }, [history])
 
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault()
 
-    const trimmed = command.trim()
+    const trimmedCommand = command.trim().toLowerCase()
 
     // Break out if the user does something stupid
-    if (!trimmed)
+    if (!trimmedCommand)
       return
 
-    // Setting the useStates here 
-    setHistory((prev) => [...prev, trimmed])
-    onExecute?.(trimmed)
+    // Execute the command
+    const result: CommandResult = executeCommand(trimmedCommand)
+
+    // Add command to terminal history
+    setHistory((prev) => [
+      ...prev,
+      {
+        type: 'command' as const, // denotes TerminalEntry as a command type
+        content: trimmedCommand // the contents of the trimmed command, i.e. "ls"
+      },
+      ...result.output.map((line) => ({ // maps the returned result from executeCommand() as TerminalEntry
+        type: 'output' as const, // denotes TerminalEntry as a return type
+        content: line, // the contents of the returned result, i.e "Command 'cat' not found"
+        success: result.success, // whether the command was a success or a failure
+      })),
+    ])
+
+    onExecute?.(trimmedCommand)
     setStatus('submitted')
     setCommand('')
 
@@ -48,19 +80,25 @@ export default function CommandPrompt({ onExecute, children }: CommandPromptProp
 
       <div className="terminal-window" role="region" aria-label="Terminal output">
 
-        <div className="terminal-output">
+        <div className="terminal-output" ref={terminalOutputRef}>
 
           {/* Command output can be rendered as children */}
           {children}
 
-          {/* Simple array mapping to a p-tag */}
-          {history.map((item, index) => (
-            <p key={`${item}-${index}`} className="terminal-line terminal-line-command">
-              <span className="command-prefix" aria-hidden="true">
-                {'>'}
-              </span>{' '}
-              {item}
-            </p>
+          {/* Render commands and their outputs */}
+          {history.map((entry, index) => (
+            entry.type === 'command' ? (
+              <p key={index} className="terminal-line terminal-line-command">
+                <span className="command-prefix" aria-hidden="true">
+                  {'>'}
+                </span>{' '}
+                {entry.content}
+              </p>
+            ) : (
+              <p key={index} className="terminal-line terminal-line-output">
+                {entry.content}
+              </p>
+            )
           ))}
         </div>
 
