@@ -13,7 +13,6 @@ const commands: Record<string, () => CommandResult> = {
       '  help       - Display this help message',
       '  ls         - List directory contents',
       '  clear      - Clear terminal history',
-      '  echo       - Print text to terminal',
       '',
       'Usage: Type a command and press Enter or click Run',
     ],
