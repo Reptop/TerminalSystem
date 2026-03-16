@@ -13,7 +13,7 @@ type CommandContext = {
 const createCommands = (context: CommandContext) => {
   const { getState } = context
 
-  const commands: Record<string, () => CommandResult> = {
+  const commands: Record<string, (args?: string) => CommandResult> = {
     help: () => ({
       success: true,
       output: [
@@ -23,6 +23,7 @@ const createCommands = (context: CommandContext) => {
         '  pwd        - Print working directory',
         '  cd <name>  - Change directory',
         '  clear      - Clear terminal history',
+        '  info       - Display system information and documentation',
         '',
         'Usage: Type a command and press Enter or click Run',
       ],
@@ -81,6 +82,12 @@ const createCommands = (context: CommandContext) => {
         output: [path],
       }
     },
+
+    info: () => ({
+      success: true,
+      output: ['Opening system information...'],
+      navigate: '/info',
+    } as CommandResult & { navigate: string }),
   }
 
   return commands
@@ -90,11 +97,14 @@ export function executeCommand(
   commandInput: string,
   context: CommandContext
 ): CommandResult {
-  const [command] = commandInput.split(' ')
+  const parts = commandInput.split(' ')
+  const command = parts[0]
+  const args = parts.length > 1 ? parts.slice(1).join(' ') : undefined
+
   const commands = createCommands(context)
 
   if (command in commands) {
-    return commands[command]!()
+    return commands[command]!(args)
   }
 
   return {

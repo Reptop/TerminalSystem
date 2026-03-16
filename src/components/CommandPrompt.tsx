@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import type { SubmitEventHandler, ReactNode } from 'react'
 import { executeCommand, type CommandResult } from '../utils/commandHandler'
 import type { RootState } from '../store/store'
@@ -16,10 +17,9 @@ type TerminalEntry = {
   success?: boolean
 }
 
-// TODO: Wire onExecute to the backend API to execute and fetch command output
 export default function CommandPrompt({ onExecute, children }: CommandPromptProps) {
 
-  // useStates to keep track of dynamic values
+  const navigate = useNavigate()
 
   // `command` holds the current input value of the command field
   const [command, setCommand] = useState('')
@@ -57,19 +57,28 @@ export default function CommandPrompt({ onExecute, children }: CommandPromptProp
       getState: () => ({ fileSystem: fileSystemState }) as RootState
     })
 
-    // Add command to terminal history
-    setHistory((prev) => [
-      ...prev,
-      {
-        type: 'command' as const, // denotes TerminalEntry as a command type
-        content: trimmedCommand // the contents of the trimmed command, i.e. "ls"
-      },
-      ...result.output.map((line) => ({ // maps the returned result from executeCommand() as TerminalEntry
-        type: 'output' as const, // denotes TerminalEntry as a return type
-        content: line, // the contents of the returned result, i.e "Command 'cat' not found"
-        success: result.success, // whether the command was a success or a failure
-      })),
-    ])
+    if ((result as any).clear) {
+      setHistory([])
+    } else {
+      // Add command to terminal history
+      setHistory((prev) => [
+        ...prev,
+        {
+          type: 'command' as const, // denotes TerminalEntry as a command type
+          content: trimmedCommand // the contents of the trimmed command, i.e. "ls"
+        },
+        ...result.output.map((line) => ({ // maps the returned result from executeCommand() as TerminalEntry
+          type: 'output' as const, // denotes TerminalEntry as a return type
+          content: line, // the contents of the returned result, i.e "Command 'cat' not found"
+          success: result.success, // whether the command was a success or a failure
+        })),
+      ])
+    }
+
+    // Handle info command - navigate to info page
+    if ((result as any).navigate) {
+      navigate((result as any).navigate)
+    }
 
     onExecute?.(trimmedCommand)
     setStatus('submitted')

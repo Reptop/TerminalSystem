@@ -1,14 +1,13 @@
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import './App.css'
-import CommandPrompt from './components/CommandPrompt'
+import { Outlet } from 'react-router-dom'
 import { createClient } from '@supabase/supabase-js'
 import { buildTree, type Node } from './utils/fileSystemBuilder'
 import { setFileSystem } from './store/fileSystemSlice'
+import CommandPrompt from './components/CommandPrompt'
+import './App.css'
 
-function App() {
-  // https://supabase.com/dashboard/project/eewubybunnafnkzamvwp/integrations/data_api/docs
-  // API established and set up basically
+export default function App() {
   const supabaseUrl = 'https://eewubybunnafnkzamvwp.supabase.co'
   const supabaseKey = "sb_publishable_PaF-_vrfXsey4lzkfs3VoA_qcZF0bzp"
   const supabase = createClient(supabaseUrl, supabaseKey)
@@ -16,7 +15,6 @@ function App() {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    // Handle async operations here
     const initializeApp = async () => {
       let { data: nodes, error } = await supabase.from('nodes').select('*')
       
@@ -35,14 +33,15 @@ function App() {
   }, [dispatch])
 
   return (
-    <main className="app-shell">
-      <CommandPrompt>
-        <p className="terminal-line">terminal-system v1.0.0</p>
-        <p className="terminal-line">type a command and press run</p>
-        <p className="terminal-line terminal-line-muted">status: waiting for input...</p>
-      </CommandPrompt>
+    <main className="app-shell app-shell-root">
+      <div className="terminal-container">
+        <CommandPrompt>
+          <p className="terminal-line">terminal-system v1.0.0</p>
+          <p className="terminal-line">type a command and press run</p>
+          <p className="terminal-line terminal-line-muted">status: waiting for input...</p>
+        </CommandPrompt>
+      </div>
+      <Outlet />
     </main>
   )
 }
-
-export default App
