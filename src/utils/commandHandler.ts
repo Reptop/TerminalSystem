@@ -59,13 +59,6 @@ const createCommands = (context: CommandContext) => {
       return {
         success: true,
         output: [
-          '            ,MMM8&&&.',
-          '    _...MMMMM88&&&&..._',
-          ` .::'''MMMMM88&&&&&&'''::.`,
-          '::     MMMMM88&&&&&&     ::',
-          `'::....MMMMM88&&&&&&....::'`,
-          "   `''''MMMMM88&&&&''''`",
-          "             'MMM8&&&'",
           'terminal-system // saturn-shell',
           '-----------------------------',
           ...lines.map(([label, value]) => `${label.padEnd(labelWidth, ' ')} : ${value}`),
