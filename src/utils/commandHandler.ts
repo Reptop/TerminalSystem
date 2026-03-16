@@ -22,6 +22,7 @@ const createCommands = (context: CommandContext) => {
         '  ls         - List directory contents',
         '  pwd        - Print working directory',
         '  info       - Display system information and documentation',
+        '  clear      - Clear terminal history'
       ],
     }),
 
