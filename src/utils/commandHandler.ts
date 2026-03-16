@@ -20,7 +20,7 @@ const commands: Record<string, () => CommandResult> = {
 
   ls: () => ({
     success: true,
-    output: `Listing all directories here`
+    output: [`Listing all directories here`]
   })
 }
 
