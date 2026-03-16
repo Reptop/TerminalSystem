@@ -17,6 +17,11 @@ const commands: Record<string, () => CommandResult> = {
       'Usage: Type a command and press Enter or click Run',
     ],
   }),
+
+  ls: () => ({
+    success: true,
+    output: `Listing all directories here`
+  })
 }
 
 export function executeCommand(commandInput: string): CommandResult {
