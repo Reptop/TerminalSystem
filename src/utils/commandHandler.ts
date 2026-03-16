@@ -81,6 +81,11 @@ const createCommands = (context: CommandContext) => {
         output: [path],
       }
     },
+
+    clear: () => ({
+      success: true,
+      output: ['cleared'],
+    }),
   }
 
   return commands
