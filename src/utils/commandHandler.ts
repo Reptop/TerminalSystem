@@ -250,7 +250,7 @@ const createCommands = (context: CommandContext) => {
       return {
         success: true,
         output: [`Opening ${targetName} render...`],
-        navigate: `/${targetName}`,
+        navigate: `/render/${targetName}`,
       }
     }, 
     

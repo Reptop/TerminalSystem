@@ -12,7 +12,7 @@ export default function InfoPage() {
             <li className="indent-1">→ Planet</li>
             <li className="indent-2">→ Moon</li>
           </ul>
-          <p className="info-text">Navigate through this hierarchy using directory commands, similar to a traditional file system.</p>
+          <p className="info-text">Navigate through this hierarchy using directory commands</p>
         </section>
 
         <section className="info-section">
@@ -26,23 +26,22 @@ export default function InfoPage() {
 
           <div className="command-doc">
             <h4><code>ls</code></h4>
-            <p>Lists all items in the current directory. Shows immediate children of the current node.</p>
+            <p>Shows immediate children of the current celestial entity. Lists all items in the current directory. </p>
             <p className="example">Example: <code>&gt; ls</code></p>
             <p className="example-output">Output: Shows planet names, moon names, etc. depending on current location</p>
           </div>
 
           <div className="command-doc">
             <h4><code>pwd</code></h4>
-            <p>Prints the current working directory. Shows your location in the hierarchy.</p>
+            <p>Shows your location in the solar system. Prints the current working directory.</p>
             <p className="example">Example: <code>&gt; pwd</code></p>
             <p className="example-output">Output: /Solar System/Earth/Moon</p>
           </div>
 
           <div className="command-doc">
             <h4><code>cd &lt;name&gt;</code></h4>
-            <p>Changes the current directory to a child directory. Navigate into subdirectories.</p>
-            <p className="example">Example: <code>&gt; cd Earth</code></p>
-            <p className="example-note">Note: Directory names are case-sensitive</p>
+            <p> Navigate further into or outside the solar system. Changes the current directory to a child or the parent directory.</p>
+            <p className="example">Example: <code>&gt; cd earth</code></p>
           </div>
 
           <div className="command-doc">
@@ -53,7 +52,7 @@ export default function InfoPage() {
 
           <div className="command-doc">
             <h4><code>info</code></h4>
-            <p>Displays this information panel with system details and command documentation.</p>
+            <p>Displays this information panel with system details and command documentation. Congrats you have found this command!</p>
             <p className="example">Example: <code>&gt; info</code></p>
           </div>
         </section>
