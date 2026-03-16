@@ -16,8 +16,8 @@ export default function App() {
 
   useEffect(() => {
     const initializeApp = async () => {
-      let { data: nodes, error } = await supabase.from('nodes').select('*')
-      
+      const { data: nodes, error } = await supabase.from('nodes').select('*')
+
       if (error) {
         console.error('Error fetching nodes:', error)
         return

@@ -84,6 +84,11 @@ const createCommands = (context: CommandContext) => {
       output: ['Opening system information...'],
       navigate: '/info',
     } as CommandResult & { navigate: string }),
+
+    clear: () => ({
+      success: true,
+      output: ['cleared'],
+    }),
   }
 
   return commands

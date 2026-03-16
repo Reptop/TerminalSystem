@@ -38,9 +38,9 @@ export default function CommandPrompt({ onExecute, children }: CommandPromptProp
 
   // Auto-scroll to bottom when history changes
   useEffect(() => {
-    if (terminalOutputRef.current) {
+    if (terminalOutputRef.current)
       terminalOutputRef.current.scrollTop = terminalOutputRef.current.scrollHeight
-    }
+
   }, [history])
 
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
