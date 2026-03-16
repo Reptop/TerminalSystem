@@ -1,5 +1,6 @@
 import { findNode, findNodeParent, getCurrentPath } from './fileSystemBuilder'
 import type { RootState } from '../store/store'
+import { SCENE_CONFIG } from '../router'
 
 export type CommandResult = {
   success: boolean
@@ -226,21 +227,9 @@ const createCommands = (context: CommandContext) => {
       }
 
       const targetName = currentNode.name.toLowerCase()
-      const renderAssets: Record<string, string> = {
-        sun: '/sun/scene.gltf',
-        mercury: '/mercury/scene.gltf',
-        venus: '/venus/scene.gltf',
-        earth: '/earth.glb',
-        mars: '/mars.glb',
-        jupiter: '/jupiter/scene.gltf',
-        moon: '/moon/scene.gltf',
-        saturn: '/saturn_planet.glb',
-        uranus: '/uranus/scene.gltf',
-        neptune: '/neptune/scene.gltf',
-      }
+      const config = SCENE_CONFIG[targetName as keyof typeof SCENE_CONFIG]
 
-      const assetPath = renderAssets[targetName]
-      if (!assetPath) {
+      if (!config) {
         return {
           success: false,
           output: [`Render: no renderer available for ${args}`],

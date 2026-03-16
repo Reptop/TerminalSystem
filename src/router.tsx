@@ -4,7 +4,7 @@ import App from './App'
 import InfoPage from './components/InfoPage'
 import ModelPage from './components/ModelPage'
 
-const SCENE_CONFIG = {
+export const SCENE_CONFIG = {
   sun: {
     assetPath: '/sun/scene.gltf',
     title: 'Sun Render',
