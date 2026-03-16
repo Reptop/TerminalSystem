@@ -21,11 +21,7 @@ const createCommands = (context: CommandContext) => {
         '  help       - Display this help message',
         '  ls         - List directory contents',
         '  pwd        - Print working directory',
-        '  cd <name>  - Change directory',
-        '  clear      - Clear terminal history',
         '  info       - Display system information and documentation',
-        '',
-        'Usage: Type a command and press Enter or click Run',
       ],
     }),
 
@@ -58,9 +54,9 @@ const createCommands = (context: CommandContext) => {
       return {
         success: true,
         output: [
-          ...currentNode.children.map(
-            child => `/${child.name}`
-          ),
+          currentNode.children
+            .map(child => `/${child.name}`)
+            .join('       '),
         ],
       }
     },
