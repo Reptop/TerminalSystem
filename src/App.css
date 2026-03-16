@@ -54,6 +54,70 @@ body {
   border: 2px solid var(--color-border);
   background-color: var(--color-bg-soft);
   box-shadow: inset 0 0 0 1px var(--color-primary), 0 8px 24px rgb(0 0 0 / 28%);
+  overflow: hidden;
+}
+
+.terminal-prompt-bar {
+  padding: 0.9rem 1rem;
+  border-bottom: 2px solid var(--color-border);
+  background-color: var(--color-bg-soft);
+}
+
+.terminal-prompt-row,
+.terminal-path-row {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.terminal-prompt-row+.terminal-path-row {
+  margin-top: 0.55rem;
+}
+
+.terminal-badge,
+.terminal-prompt-value,
+.terminal-path {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.terminal-badge {
+  border: 1px solid var(--color-border-strong);
+  padding: 0.2rem 0.55rem;
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  font-size: 0.88rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+
+.terminal-prompt-label,
+.terminal-path-copy,
+.terminal-prompt-separator {
+  color: var(--color-muted);
+  font-size: 0.92rem;
+  text-transform: lowercase;
+}
+
+.terminal-prompt-value {
+  color: var(--color-ink);
+  font-size: 0.95rem;
+}
+
+.terminal-prompt-value-active {
+  color: var(--color-ink);
+}
+
+.terminal-path-glyph {
+  color: var(--color-muted);
+  font-size: 1rem;
+}
+
+.terminal-path {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: 0.96rem;
+  word-break: break-all;
 }
 
 .terminal-output {
@@ -101,6 +165,36 @@ body {
   color: var(--color-ink);
 }
 
+.terminal-line-output {
+  color: var(--color-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1rem;
+}
+
+.terminal-block + .terminal-block {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.terminal-result {
+  margin-top: 0.55rem;
+  padding: 0.15rem 0 0.15rem 1rem;
+  border-left: 2px solid var(--color-border);
+}
+
+.terminal-result .terminal-line + .terminal-line {
+  margin-top: 0.2rem;
+}
+
+.terminal-block-error .terminal-result {
+  border-left-color: var(--color-border-strong);
+}
+
+.terminal-block-error .terminal-line-output {
+  color: var(--color-ink);
+}
+
 .command-form {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -110,7 +204,7 @@ body {
 
 .command-field-wrap {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto auto 1fr;
   align-items: center;
   gap: 0.8rem;
   border: 2px solid var(--color-border);
@@ -126,6 +220,13 @@ body {
 .command-prefix {
   color: var(--color-muted);
   font-size: 1.2rem;
+}
+
+.command-context {
+  color: var(--color-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.92rem;
+  white-space: nowrap;
 }
 
 input[type='text'],
@@ -400,6 +501,10 @@ button:focus-visible {
     min-height: 14rem;
   }
 
+  .terminal-prompt-bar {
+    padding: 0.85rem;
+  }
+
   .command-form {
     grid-template-columns: 1fr;
   }
@@ -409,6 +514,15 @@ button:focus-visible {
   .command-field-wrap,
   .terminal-line {
     font-size: 1.05rem;
+  }
+
+  .command-field-wrap {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .command-context {
+    font-size: 0.88rem;
   }
 
   button {

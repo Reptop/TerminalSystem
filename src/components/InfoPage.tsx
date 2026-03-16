@@ -3,7 +3,7 @@ export default function InfoPage() {
     <aside className="info-panel">
       <div className="info-content">
         <h2>Terminal System Information</h2>
-        
+
         <section className="info-section">
           <h3>System Hierarchy</h3>
           <p>The terminal system is organized in a hierarchical structure:</p>
@@ -17,7 +17,7 @@ export default function InfoPage() {
 
         <section className="info-section">
           <h3>Available Commands</h3>
-          
+
           <div className="command-doc">
             <h4><code>help</code></h4>
             <p>Displays all available commands with brief descriptions.</p>

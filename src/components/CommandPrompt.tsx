@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import type { SubmitEventHandler, ReactNode } from 'react'
 import { executeCommand, type CommandResult } from '../utils/commandHandler'
+import { getCurrentPath } from '../utils/fileSystemBuilder'
 import type { RootState } from '../store/store'
 
 // Created a new type to act as the argument type for the CommandPrompt component
@@ -11,10 +12,10 @@ type CommandPromptProps = {
   onExecute?: (command: string) => void
 }
 
-type TerminalEntry = {
-  type: 'command' | 'output'
-  content: string
-  success?: boolean
+type CommandBlock = {
+  command: string
+  output: string[]
+  success: boolean
 }
 
 export default function CommandPrompt({ onExecute, children }: CommandPromptProps) {
@@ -27,14 +28,17 @@ export default function CommandPrompt({ onExecute, children }: CommandPromptProp
   // `status` tracks whether a command has been submitted or not, which can be used to provide user feedback
   const [status, setStatus] = useState<'idle' | 'submitted'>('idle')
 
-  // `history` is an array that stores all previously submitted commands and their outputs
-  const [history, setHistory] = useState<TerminalEntry[]>([])
+  // `history` stores each command together with its output block.
+  const [history, setHistory] = useState<CommandBlock[]>([])
 
   // Ref to the terminal output div for auto-scrolling
   const terminalOutputRef = useRef<HTMLDivElement>(null)
 
   // Get the Redux state for file system
   const fileSystemState = useSelector((state: RootState) => state.fileSystem)
+  const currentPath = fileSystemState.root && fileSystemState.currentNodeId
+    ? getCurrentPath(fileSystemState.root, fileSystemState.currentNodeId)
+    : '/terminal-system'
 
   // Auto-scroll to bottom when history changes
   useEffect(() => {
@@ -57,29 +61,22 @@ export default function CommandPrompt({ onExecute, children }: CommandPromptProp
       getState: () => ({ fileSystem: fileSystemState }) as RootState
     })
 
-    if (result.clear)
+    if (result.clear) {
       setHistory([])
 
+      // We go back to the root directory here
+      navigate('/')
+    }
+
     else {
-      // Add command to terminal history
+      // Store the command and its output together so they can render as one section.
       setHistory((prev) => [
         ...prev,
         {
-          type: 'command' as const,
-          content: trimmedCommand
-        },
-
-        // maps the returned result from executeCommand() as TerminalEntry
-        ...result.output.map((line) => ({
-          type: 'output' as const,
-
-
-          // the contents of the returned result, like the "Command 'cat' not found"
-          content: line,
-
-          // whether the command was a success or a failure
+          command: trimmedCommand,
+          output: result.output,
           success: result.success,
-        })),
+        },
       ])
     }
 
@@ -102,26 +99,57 @@ export default function CommandPrompt({ onExecute, children }: CommandPromptProp
     <section className="command-card" aria-labelledby="command-prompt-heading">
 
       <div className="terminal-window" role="region" aria-label="Terminal output">
+        <div className="terminal-prompt-bar">
+          <div className="terminal-prompt-row">
+            <span className="terminal-badge">terminal-system</span>
+            <span className="terminal-prompt-label">session</span>
+            <span className="terminal-prompt-value">interactive shell</span>
+            <span className="terminal-prompt-separator" aria-hidden="true">
+              /
+            </span>
+            <span className="terminal-prompt-label">mode</span>
+            <span className="terminal-prompt-value terminal-prompt-value-active">
+              {status === 'submitted' ? 'running' : 'ready'}
+            </span>
+          </div>
+
+          <div className="terminal-path-row">
+            <span className="terminal-path-glyph" aria-hidden="true">
+              &gt;
+            </span>
+            <span className="terminal-path-copy">path</span>
+            <code className="terminal-path">{currentPath}</code>
+          </div>
+        </div>
 
         <div className="terminal-output" ref={terminalOutputRef}>
 
           {/* Command output can be rendered as children */}
           {children}
 
-          {/* Render commands and their outputs */}
+          {/* Render each command and its output as a single grouped block. */}
           {history.map((entry, index) => (
-            entry.type === 'command' ? (
-              <p key={index} className="terminal-line terminal-line-command">
+            <div
+              key={`${entry.command}-${index}`}
+              className={`terminal-block ${entry.success ? 'terminal-block-success' : 'terminal-block-error'}`}
+            >
+              <p className="terminal-line terminal-line-command">
                 <span className="command-prefix" aria-hidden="true">
                   {'>'}
                 </span>{' '}
-                {entry.content}
+                {entry.command}
               </p>
-            ) : (
-              <p key={index} className="terminal-line terminal-line-output">
-                {entry.content}
-              </p>
-            )
+
+              {entry.output.length > 0 && (
+                <div className="terminal-result">
+                  {entry.output.map((line, outputIndex) => (
+                    <p key={`${line}-${outputIndex}`} className="terminal-line terminal-line-output">
+                      {line}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </div>
 
@@ -131,7 +159,7 @@ export default function CommandPrompt({ onExecute, children }: CommandPromptProp
           </label>
 
           <div className="command-field-wrap">
-
+            <span className="command-context">user@terminal</span>
             <span className="command-prefix" aria-hidden="true">
               {'>'}
             </span>
