@@ -1,8 +1,24 @@
-import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom'
-import { useMemo } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import App from './App'
 import InfoPage from './components/InfoPage'
-import ModelPage from './components/ModelPage'
+import RenderPage from './components/RenderPage'
+import InspectPageRoute from './components/InspectPageRoute'
+
+export function AppRouter() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<App />}>
+          <Route index element={<RenderPage />} />
+          <Route path="info" element={<InfoPage />} />
+          <Route path="render/:planet" element={<RenderPage />} />
+          <Route path="inspect/:planet" element={<InspectPageRoute />} />
+        </Route>
+      </Routes>
+    </Router>
+  )
+}
+
 
 export const SCENE_CONFIG = {
   sun: {
@@ -55,38 +71,4 @@ export const SCENE_CONFIG = {
     title: 'Moon Render',
     description: 'Lunar render preview for the Moon.',
   },
-}
-
-function RenderPage() {
-  const { planet, satellite } = useParams<{ planet?: string; satellite?: string }>()
-  
-  const sceneKey = satellite || planet
-  const config = sceneKey ? SCENE_CONFIG[sceneKey as keyof typeof SCENE_CONFIG] : null
-
-  if (!config) {
-    return (
-      <aside className="info-panel render-panel">
-        <div className="info-content render-content">
-          <h2>Not Found</h2>
-          <p className="info-text">The requested render scene was not found.</p>
-        </div>
-      </aside>
-    )
-  }
-
-  return <ModelPage assetPath={config.assetPath} label={sceneKey} title={config.title} description={config.description} />
-}
-
-export function AppRouter() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<App />}>
-          <Route index element={<RenderPage />} />
-          <Route path="info" element={<InfoPage />} />
-          <Route path="render/:planet" element={<RenderPage />} />
-        </Route>
-      </Routes>
-    </Router>
-  )
 }

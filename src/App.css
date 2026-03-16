@@ -628,6 +628,94 @@ button:focus-visible {
   background-color: var(--color-border-strong);
 }
 
+/* Inspect page */
+
+.inspect-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.inspect-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  background-color: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.inspect-badge-renderable {
+  border-color: var(--color-border-strong);
+  color: var(--color-ink);
+}
+
+.inspect-stats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.inspect-stat-row {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.inspect-stat-row:last-child {
+  border-bottom: none;
+}
+
+.inspect-stat-label {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  font-family: monospace;
+  color: var(--color-muted);
+  background-color: var(--color-bg-soft);
+  border-right: 1px solid var(--color-border);
+}
+
+.inspect-stat-value {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--color-ink);
+}
+
+.inspect-facts-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.inspect-fact-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background-color: var(--color-bg-soft);
+  border-left: 2px solid var(--color-border);
+  font-size: 0.88rem;
+}
+
+.inspect-fact-key {
+  color: var(--color-muted);
+  font-family: monospace;
+  flex-shrink: 0;
+}
+
+.inspect-fact-value {
+  color: var(--color-ink);
+}
+
 @media (max-width: 600px) {
   .app-shell {
     padding-top: 1.5rem;

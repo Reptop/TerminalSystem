@@ -200,7 +200,7 @@ const createCommands = (context: CommandContext) => {
       clear: true,
     }),
 
-    render: (args) => {
+    render: () => {
       const state = getState()
       const { root, currentNodeId } = state.fileSystem
 
@@ -243,7 +243,7 @@ const createCommands = (context: CommandContext) => {
       }
     }, 
     
-    inspect: (args) => {
+    inspect: () => {
       const state = getState()
       const { root, currentNodeId } = state.fileSystem
 
@@ -254,17 +254,20 @@ const createCommands = (context: CommandContext) => {
         }
       }
 
-      if (!args) {
+      const currentNode = findNode(root, currentNodeId)
+      if (!currentNode) {
         return {
           success: false,
-          output: ['Usage: inpsect <object>', 'Example: inspect sun'],
+          output: ['Error: Current node not found'],
         }
       }
 
+      const targetName = currentNode.name.toLowerCase()
+
       return {
         success: true,
-        output: [`Opening inspect render...`],
-        navigate: `/inspect`,
+        output: [`Opening inspect render regarding ${targetName}...`],
+        navigate: `/inspect/${targetName}`,
       } 
     }
   }

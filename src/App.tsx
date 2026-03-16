@@ -15,7 +15,7 @@ export default function App() {
 
   const dispatch = useDispatch()
   const location = useLocation()
-  const showBackgroundStars = location.pathname === '/'
+  const showBackgroundStars = true
   const hasSidebar = location.pathname !== '/'
 
   useEffect(() => {
