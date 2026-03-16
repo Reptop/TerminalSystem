@@ -26,7 +26,7 @@ const createCommands = (context: CommandContext) => {
         '  ls         - List directory contents',
         '  pwd        - Print working directory',
         '  cd <name>  - Change directory',
-        '  render <x> - Render the current celestial body',
+        '  render     - Render the current celestial body',
         '  info       - Display system information and documentation',
         '  clear      - Clear terminal history',
       ],
@@ -210,13 +210,6 @@ const createCommands = (context: CommandContext) => {
         }
       }
 
-      if (!args) {
-        return {
-          success: false,
-          output: ['Usage: render <object>', 'Example: render sun'],
-        }
-      }
-
       const currentNode = findNode(root, currentNodeId)
       if (!currentNode) {
         return {
@@ -225,7 +218,14 @@ const createCommands = (context: CommandContext) => {
         }
       }
 
-      const targetName = args.toLowerCase()
+      if (!currentNode.renderable) {
+        return {
+          success: false,
+          output: ['Error: This celestial entity is not renderable'],
+        }
+      }
+
+      const targetName = currentNode.name.toLowerCase()
       const renderAssets: Record<string, string> = {
         sun: '/sun/scene.gltf',
         mercury: '/mercury/scene.gltf',
@@ -243,14 +243,7 @@ const createCommands = (context: CommandContext) => {
       if (!assetPath) {
         return {
           success: false,
-          output: [`render: no renderer available for ${args}`],
-        }
-      }
-
-      if (currentNode.name.toLowerCase() !== targetName) {
-        return {
-          success: false,
-          output: [`render: navigate to /${targetName} before rendering it`],
+          output: [`Render: no renderer available for ${args}`],
         }
       }
 
