@@ -57,28 +57,35 @@ export default function CommandPrompt({ onExecute, children }: CommandPromptProp
       getState: () => ({ fileSystem: fileSystemState }) as RootState
     })
 
-    if ((result as any).clear) {
+    if (result.clear)
       setHistory([])
-    } else {
+
+    else {
       // Add command to terminal history
       setHistory((prev) => [
         ...prev,
         {
-          type: 'command' as const, // denotes TerminalEntry as a command type
-          content: trimmedCommand // the contents of the trimmed command, i.e. "ls"
+          type: 'command' as const,
+          content: trimmedCommand
         },
-        ...result.output.map((line) => ({ // maps the returned result from executeCommand() as TerminalEntry
-          type: 'output' as const, // denotes TerminalEntry as a return type
-          content: line, // the contents of the returned result, i.e "Command 'cat' not found"
-          success: result.success, // whether the command was a success or a failure
+
+        // maps the returned result from executeCommand() as TerminalEntry
+        ...result.output.map((line) => ({
+          type: 'output' as const,
+
+
+          // the contents of the returned result, like the "Command 'cat' not found"
+          content: line,
+
+          // whether the command was a success or a failure
+          success: result.success,
         })),
       ])
     }
 
     // Handle info command - navigate to info page
-    if ((result as any).navigate) {
-      navigate((result as any).navigate)
-    }
+    if (result.navigate)
+      navigate(result.navigate)
 
     onExecute?.(trimmedCommand)
     setStatus('submitted')

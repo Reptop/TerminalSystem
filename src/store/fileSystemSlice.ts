@@ -20,9 +20,11 @@ export const fileSystemSlice = createSlice({
       state.root = action.payload
       state.currentNodeId = action.payload.id
     },
+
     navigateTo: (state, action: PayloadAction<string>) => {
       state.currentNodeId = action.payload
     },
+
     navigateToRoot: (state) => {
       if (state.root) {
         state.currentNodeId = state.root.id

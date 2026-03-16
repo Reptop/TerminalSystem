@@ -21,12 +21,16 @@ export type TreeNode = {
   children: TreeNode[]
 }
 
+type TreeBuildNode = TreeNode & {
+  parent_id?: string
+}
+
 export function buildTree(nodes: Node[]): TreeNode {
   const nodeMap = new Map(
-    nodes.map(n => [n.id, { ...n, children: [] as TreeNode[] } as TreeNode])
+    nodes.map(n => [n.id, { ...n, children: [] as TreeNode[] } as TreeBuildNode])
   )
 
-  for (const [id, node] of nodeMap.entries()) {
+  for (const [, node] of nodeMap.entries()) {
     if (node.parent_id) {
       const parent = nodeMap.get(node.parent_id)
 
@@ -39,6 +43,7 @@ export function buildTree(nodes: Node[]): TreeNode {
   const rootNode = Array.from(nodeMap.values()).find(n => !n.parent_id)
   if (!rootNode)
     throw new Error('No root node found')
+
   return rootNode
 }
 

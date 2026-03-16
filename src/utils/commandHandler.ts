@@ -1,9 +1,11 @@
-import { findNode, getCurrentPath, type TreeNode } from './fileSystemBuilder'
+import { findNode, getCurrentPath } from './fileSystemBuilder'
 import type { RootState } from '../store/store'
 
 export type CommandResult = {
   success: boolean
   output: string[]
+  clear?: boolean
+  navigate?: string
 }
 
 type CommandContext = {
@@ -84,11 +86,12 @@ const createCommands = (context: CommandContext) => {
       success: true,
       output: ['Opening system information...'],
       navigate: '/info',
-    } as CommandResult & { navigate: string }),
+    }),
 
     clear: () => ({
       success: true,
-      output: ['cleared'],
+      output: [],
+      clear: true,
     }),
   }
 
