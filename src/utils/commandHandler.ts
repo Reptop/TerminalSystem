@@ -51,7 +51,6 @@ const createCommands = (context: CommandContext) => {
         ['path', currentPath],
         ['node', currentNode?.name ?? 'unknown'],
         ['type', currentNode?.type ?? 'unknown'],
-        ['children', String(currentNode?.children.length ?? 0)],
         ['renderable', currentNode?.renderable ? 'yes' : 'no'],
       ]
       const labelWidth = Math.max(...lines.map(([label]) => label.length))
@@ -59,15 +58,6 @@ const createCommands = (context: CommandContext) => {
       return {
         success: true,
         output: [
-          '            ,MMM8&&&.',
-          '    _...MMMMM88&&&&..._',
-          ` .::'''MMMMM88&&&&&&'''::.`,
-          '::     MMMMM88&&&&&&     ::',
-          `'::....MMMMM88&&&&&&....::'`,
-          "   `''''MMMMM88&&&&''''`",
-          "             'MMM8&&&'",
-          'terminal-system // saturn-shell',
-          '-----------------------------',
           ...lines.map(([label, value]) => `${label.padEnd(labelWidth, ' ')} : ${value}`),
         ],
       }
@@ -269,7 +259,32 @@ const createCommands = (context: CommandContext) => {
         output: [`Opening ${targetName} render...`],
         navigate: `/${targetName}`,
       }
-    },
+    }, 
+    
+    inspect: (args) => {
+      const state = getState()
+      const { root, currentNodeId } = state.fileSystem
+
+      if (!root || !currentNodeId) {
+        return {
+          success: false,
+          output: ['Error: File system not loaded'],
+        }
+      }
+
+      if (!args) {
+        return {
+          success: false,
+          output: ['Usage: inpsect <object>', 'Example: inspect sun'],
+        }
+      }
+
+      return {
+        success: true,
+        output: [`Opening inspect render...`],
+        navigate: `/inspect`,
+      } 
+    }
   }
 
   return commands
