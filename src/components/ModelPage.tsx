@@ -14,9 +14,11 @@ export default function ModelPage({ assetPath, label, title, description }: Mode
         <h2>{title}</h2>
         <p className="info-text">{description}</p>
 
+        {/* Wrap the model preview in a div to apply specific styling */}
         <div className="render-preview-card">
           <TerminalModelPreview assetPath={assetPath} label={label} />
         </div>
+
       </div>
     </aside>
   )

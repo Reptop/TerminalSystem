@@ -3,8 +3,12 @@ import ModelPage from './ModelPage'
 import { SCENE_CONFIG } from '../router'
 
 export default function RenderPage() {
+  // Get the planet name 
   const { planet } = useParams<{ planet?: string }>()
+
+  // If not null, look up the config for the planet
   const config = planet ? SCENE_CONFIG[planet as keyof typeof SCENE_CONFIG] : null
+
 
   if (!config) {
     return (
@@ -17,5 +21,6 @@ export default function RenderPage() {
     )
   }
 
+  // Return the model page component
   return <ModelPage assetPath={config.assetPath} label={planet!} title={config.title} description={config.description} />
 }

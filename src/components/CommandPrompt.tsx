@@ -10,7 +10,7 @@ import type { RootState } from '../store/store'
 // Created a new type to act as the argument type for the CommandPrompt component
 type CommandPromptProps = {
   children?: ReactNode
-  onExecute?: (command: string) => void
+  onExecute?: (command: string, result: CommandResult) => void
 }
 
 type CommandBlock = {
@@ -92,7 +92,7 @@ export default function CommandPrompt({ onExecute, children }: CommandPromptProp
     if (result.nextNodeId)
       dispatch(navigateTo(result.nextNodeId))
 
-    onExecute?.(trimmedCommand)
+    onExecute?.(trimmedCommand, result)
     setStatus('submitted')
     setCommand('')
 

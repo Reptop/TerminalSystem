@@ -244,9 +244,9 @@ export default function TerminalModelPreview({ assetPath, label }: TerminalModel
 
         if (assetPath === '/sun/scene.gltf') {
           modelRoot.scale.setScalar(1.2 * oversizeNormalization)
-          camera.position.set(0, 0.25, 26)
-          controls.minDistance = 12
-          controls.maxDistance = 42
+          camera.position.set(0, 0.22, 0.5)
+          controls.minDistance = 9
+          controls.maxDistance = 34
           controls.target.set(0, 0, 0)
           controls.update()
           camera.lookAt(0, 0, 0)
