@@ -26,9 +26,8 @@ export const fileSystemSlice = createSlice({
     },
 
     navigateToRoot: (state) => {
-      if (state.root) {
+      if (state.root)
         state.currentNodeId = state.root.id
-      }
     },
   },
 })

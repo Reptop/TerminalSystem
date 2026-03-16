@@ -1,10 +1,11 @@
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { createClient } from '@supabase/supabase-js'
 import { buildTree, type Node } from './utils/fileSystemBuilder'
 import { setFileSystem } from './store/fileSystemSlice'
 import CommandPrompt from './components/CommandPrompt'
+import BackgroundStars from './components/BackgroundStars'
 import './App.css'
 
 export default function App() {
@@ -13,6 +14,9 @@ export default function App() {
   const supabase = createClient(supabaseUrl, supabaseKey)
 
   const dispatch = useDispatch()
+  const location = useLocation()
+  const showBackgroundStars = location.pathname === '/'
+  const hasSidebar = location.pathname !== '/'
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -33,15 +37,22 @@ export default function App() {
   }, [dispatch])
 
   return (
-    <main className="app-shell app-shell-root">
-      <div className="terminal-container">
-        <CommandPrompt>
-          <p className="terminal-line">terminal-system v1.0.0</p>
-          <p className="terminal-line">type a command and press run</p>
-          <p className="terminal-line terminal-line-muted">status: waiting for input...</p>
-        </CommandPrompt>
-      </div>
-      <Outlet />
-    </main>
+    <div className="app-stage">
+      {showBackgroundStars && <BackgroundStars />}
+
+      <main className={`app-shell app-shell-root ${hasSidebar ? 'app-shell-with-sidebar' : 'app-shell-centered'}`}>
+        <div className="terminal-shell">
+          <div className="terminal-container">
+            <CommandPrompt>
+              <p className="terminal-line">terminal-system v1.0.0</p>
+              <p className="terminal-line">type a command and press run</p>
+            </CommandPrompt>
+          </div>
+        </div>
+        <div className={`sidebar-shell ${hasSidebar ? 'sidebar-shell-visible' : 'sidebar-shell-hidden'}`}>
+          <Outlet />
+        </div>
+      </main>
+    </div>
   )
 }

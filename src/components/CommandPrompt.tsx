@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import type { SubmitEventHandler, ReactNode } from 'react'
 import { executeCommand, type CommandResult } from '../utils/commandHandler'
 import { getCurrentPath } from '../utils/fileSystemBuilder'
+import { navigateTo } from '../store/fileSystemSlice'
 import type { RootState } from '../store/store'
 
 // Created a new type to act as the argument type for the CommandPrompt component
@@ -20,6 +21,7 @@ type CommandBlock = {
 
 export default function CommandPrompt({ onExecute, children }: CommandPromptProps) {
 
+  const dispatch = useDispatch()
   const navigate = useNavigate()
 
   // `command` holds the current input value of the command field
@@ -36,6 +38,8 @@ export default function CommandPrompt({ onExecute, children }: CommandPromptProp
 
   // Get the Redux state for file system
   const fileSystemState = useSelector((state: RootState) => state.fileSystem)
+
+  // Get the current path if its defined, otherwise start at the root path
   const currentPath = fileSystemState.root && fileSystemState.currentNodeId
     ? getCurrentPath(fileSystemState.root, fileSystemState.currentNodeId)
     : '/terminal-system'
@@ -64,7 +68,7 @@ export default function CommandPrompt({ onExecute, children }: CommandPromptProp
     if (result.clear) {
       setHistory([])
 
-      // We go back to the root directory here
+      // Navigate back to root in case info is open
       navigate('/')
     }
 
@@ -83,6 +87,10 @@ export default function CommandPrompt({ onExecute, children }: CommandPromptProp
     // Handle info command - navigate to info page
     if (result.navigate)
       navigate(result.navigate)
+
+    // For the cd command
+    if (result.nextNodeId)
+      dispatch(navigateTo(result.nextNodeId))
 
     onExecute?.(trimmedCommand)
     setStatus('submitted')
@@ -149,6 +157,7 @@ export default function CommandPrompt({ onExecute, children }: CommandPromptProp
                   ))}
                 </div>
               )}
+
             </div>
           ))}
         </div>
@@ -159,7 +168,7 @@ export default function CommandPrompt({ onExecute, children }: CommandPromptProp
           </label>
 
           <div className="command-field-wrap">
-            <span className="command-context">user@terminal</span>
+            <span className="command-context">{currentPath}</span>
             <span className="command-prefix" aria-hidden="true">
               {'>'}
             </span>

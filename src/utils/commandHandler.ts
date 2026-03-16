@@ -1,4 +1,4 @@
-import { findNode, getCurrentPath } from './fileSystemBuilder'
+import { findNode, findNodeParent, getCurrentPath } from './fileSystemBuilder'
 import type { RootState } from '../store/store'
 
 export type CommandResult = {
@@ -6,6 +6,7 @@ export type CommandResult = {
   output: string[]
   clear?: boolean
   navigate?: string
+  nextNodeId?: string
 }
 
 type CommandContext = {
@@ -21,12 +22,56 @@ const createCommands = (context: CommandContext) => {
       output: [
         'Available Commands:',
         '  help       - Display this help message',
+        '  fastfetch  - Display system summary',
         '  ls         - List directory contents',
         '  pwd        - Print working directory',
+        '  cd <name>  - Change directory',
+        '  render <x> - Render the current celestial body',
         '  info       - Display system information and documentation',
-        '  clear      - Clear terminal history'
+        '  clear      - Clear terminal history',
       ],
     }),
+
+    fastfetch: () => {
+      const state = getState()
+      const { root, currentNodeId } = state.fileSystem
+
+      if (!root || !currentNodeId) {
+        return {
+          success: false,
+          output: ['Error: File system not loaded'],
+        }
+      }
+
+      const currentNode = findNode(root, currentNodeId)
+      const currentPath = getCurrentPath(root, currentNodeId)
+      const lines = [
+        ['host', 'solar-system-sim'],
+        ['root', '/solar-system'],
+        ['path', currentPath],
+        ['node', currentNode?.name ?? 'unknown'],
+        ['type', currentNode?.type ?? 'unknown'],
+        ['children', String(currentNode?.children.length ?? 0)],
+        ['renderable', currentNode?.renderable ? 'yes' : 'no'],
+      ]
+      const labelWidth = Math.max(...lines.map(([label]) => label.length))
+
+      return {
+        success: true,
+        output: [
+          '            ,MMM8&&&.',
+          '    _...MMMMM88&&&&..._',
+          ` .::'''MMMMM88&&&&&&'''::.`,
+          '::     MMMMM88&&&&&&     ::',
+          `'::....MMMMM88&&&&&&....::'`,
+          "   `''''MMMMM88&&&&''''`",
+          "             'MMM8&&&'",
+          'terminal-system // saturn-shell',
+          '-----------------------------',
+          ...lines.map(([label, value]) => `${label.padEnd(labelWidth, ' ')} : ${value}`),
+        ],
+      }
+    },
 
     ls: () => {
       const state = getState()
@@ -82,6 +127,76 @@ const createCommands = (context: CommandContext) => {
       }
     },
 
+    cd: (args) => {
+      const state = getState()
+      const { root, currentNodeId } = state.fileSystem
+
+      if (!root || !currentNodeId) {
+        return {
+          success: false,
+          output: ['Error: File system not loaded'],
+        }
+      }
+
+      if (!args) {
+        return {
+          success: false,
+          output: ['Usage: cd <directory>', 'Try "cd .." or "cd /"'],
+        }
+      }
+
+      const currentNode = findNode(root, currentNodeId)
+      if (!currentNode) {
+        return {
+          success: false,
+          output: ['Error: Current node not found'],
+        }
+      }
+
+      if (args === '/') {
+        return {
+          success: true,
+          output: [getCurrentPath(root, root.id)],
+          nextNodeId: root.id,
+        }
+      }
+
+      if (args === '..') {
+        const parentNode = findNodeParent(root, currentNodeId)
+
+        if (!parentNode) {
+          return {
+            success: true,
+            output: [getCurrentPath(root, currentNodeId)],
+            nextNodeId: currentNodeId,
+          }
+        }
+
+        return {
+          success: true,
+          output: [getCurrentPath(root, parentNode.id)],
+          nextNodeId: parentNode.id,
+        }
+      }
+
+      const targetNode = currentNode.children.find(
+        (child) => child.name.toLowerCase() === args.toLowerCase(),
+      )
+
+      if (!targetNode) {
+        return {
+          success: false,
+          output: [`cd: no such directory: ${args}`],
+        }
+      }
+
+      return {
+        success: true,
+        output: [getCurrentPath(root, targetNode.id)],
+        nextNodeId: targetNode.id,
+      }
+    },
+
     info: () => ({
       success: true,
       output: ['Opening system information...'],
@@ -93,6 +208,68 @@ const createCommands = (context: CommandContext) => {
       output: [],
       clear: true,
     }),
+
+    render: (args) => {
+      const state = getState()
+      const { root, currentNodeId } = state.fileSystem
+
+      if (!root || !currentNodeId) {
+        return {
+          success: false,
+          output: ['Error: File system not loaded'],
+        }
+      }
+
+      if (!args) {
+        return {
+          success: false,
+          output: ['Usage: render <object>', 'Example: render sun'],
+        }
+      }
+
+      const currentNode = findNode(root, currentNodeId)
+      if (!currentNode) {
+        return {
+          success: false,
+          output: ['Error: Current node not found'],
+        }
+      }
+
+      const targetName = args.toLowerCase()
+      const renderAssets: Record<string, string> = {
+        sun: '/sun/scene.gltf',
+        mercury: '/mercury/scene.gltf',
+        venus: '/venus/scene.gltf',
+        earth: '/earth.glb',
+        mars: '/mars.glb',
+        jupiter: '/jupiter/scene.gltf',
+        moon: '/moon/scene.gltf',
+        saturn: '/saturn_planet.glb',
+        uranus: '/uranus/scene.gltf',
+        neptune: '/neptune/scene.gltf',
+      }
+
+      const assetPath = renderAssets[targetName]
+      if (!assetPath) {
+        return {
+          success: false,
+          output: [`render: no renderer available for ${args}`],
+        }
+      }
+
+      if (currentNode.name.toLowerCase() !== targetName) {
+        return {
+          success: false,
+          output: [`render: navigate to /${targetName} before rendering it`],
+        }
+      }
+
+      return {
+        success: true,
+        output: [`Opening ${targetName} render...`],
+        navigate: `/${targetName}`,
+      }
+    },
   }
 
   return commands
@@ -108,9 +285,8 @@ export function executeCommand(
 
   const commands = createCommands(context)
 
-  if (command in commands) {
+  if (command in commands)
     return commands[command]!(args)
-  }
 
   return {
     success: false,
