@@ -15,19 +15,25 @@ export default function InspectPageRoute() {
   const [error, setError] = useState<string | null>(null)
 
   const node = useMemo(() => {
-    if (!root || !planet) return null
+    if (!root || !planet)
+      return null
+
     // BFS search by name
     const queue = [root]
     while (queue.length > 0) {
       const current = queue.shift()!
-      if (current.name.toLowerCase() === planet.toLowerCase()) return current
+
+      if (current.name.toLowerCase() === planet.toLowerCase())
+        return current
+
       queue.push(...current.children)
     }
     return null
   }, [root, planet])
 
   useEffect(() => {
-    if (!node) return
+    if (!node)
+      return
 
     let cancelled = false
     setDetails(null)
@@ -40,9 +46,15 @@ export default function InspectPageRoute() {
       .eq('node_id', node.id)
       .single()
       .then(({ data, error }) => {
-        if (cancelled) return
-        if (error) setError(error.message)
-        else setDetails(data as NodeDetails)
+        if (cancelled)
+          return
+
+        if (error)
+          setError(error.message)
+
+        else
+          setDetails(data as NodeDetails)
+
         setLoading(false)
       })
 

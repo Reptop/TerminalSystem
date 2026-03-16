@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { Outlet, useLocation } from 'react-router-dom'
 import { createClient } from '@supabase/supabase-js'
@@ -6,6 +6,8 @@ import { buildTree, type Node } from './utils/fileSystemBuilder'
 import { setFileSystem } from './store/fileSystemSlice'
 import CommandPrompt from './components/CommandPrompt'
 import BackgroundStars from './components/BackgroundStars'
+import SolarSystemPage from './components/SolarSystemPage'
+import type { CommandResult } from './utils/commandHandler'
 import './App.css'
 
 export default function App() {
@@ -15,8 +17,10 @@ export default function App() {
 
   const dispatch = useDispatch()
   const location = useLocation()
+  const [rootPanel, setRootPanel] = useState<'system' | null>(null)
   const showBackgroundStars = true
-  const hasSidebar = location.pathname !== '/'
+  const hasRouteSidebar = location.pathname !== '/'
+  const hasSidebar = hasRouteSidebar || rootPanel !== null
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -36,6 +40,21 @@ export default function App() {
     initializeApp()
   }, [dispatch])
 
+  useEffect(() => {
+    if (location.pathname !== '/')
+      setRootPanel(null)
+  }, [location.pathname])
+
+  const handleCommandExecute = (_command: string, result: CommandResult) => {
+    if (result.clear) {
+      setRootPanel(null)
+      return
+    }
+
+    if (result.panel)
+      setRootPanel(result.panel)
+  }
+
   return (
     <div className="app-stage">
       {showBackgroundStars && <BackgroundStars />}
@@ -43,14 +62,14 @@ export default function App() {
       <main className={`app-shell app-shell-root ${hasSidebar ? 'app-shell-with-sidebar' : 'app-shell-centered'}`}>
         <div className="terminal-shell">
           <div className="terminal-container">
-            <CommandPrompt>
+            <CommandPrompt onExecute={handleCommandExecute}>
               <p className="terminal-line">terminal-system v1.0.0</p>
               <p className="terminal-line">type a command and press run</p>
             </CommandPrompt>
           </div>
         </div>
         <div className={`sidebar-shell ${hasSidebar ? 'sidebar-shell-visible' : 'sidebar-shell-hidden'}`}>
-          <Outlet />
+          {location.pathname === '/' ? rootPanel === 'system' ? <SolarSystemPage /> : null : <Outlet />}
         </div>
       </main>
     </div>

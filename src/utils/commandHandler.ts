@@ -8,15 +8,25 @@ export type CommandResult = {
   clear?: boolean
   navigate?: string
   nextNodeId?: string
+  panel?: 'system'
 }
 
 type CommandContext = {
+  // Commands use this to read the latest Redux-backed application state.
   getState: () => RootState
 }
 
 const createCommands = (context: CommandContext) => {
   const { getState } = context
 
+  // This is the command lookup table.
+  // Example:
+  // - user types `pwd`
+  // - `executeCommand(...)` parses that into the command name `pwd`
+  // - we then run `commands.pwd()`
+  //
+  // Each command returns a plain result object instead of mutating React state directly.
+  // The terminal component reads that result and decides how to update the UI.
   const commands: Record<string, (args?: string) => CommandResult> = {
     help: () => ({
       success: true,
@@ -27,12 +37,16 @@ const createCommands = (context: CommandContext) => {
         '  ls         - List directory contents',
         '  pwd        - Print working directory',
         '  cd <name>  - Change directory',
-        '  render     - Render the current celestial body',
+        '  render     - Render the current celestial body or solar system',
         '  info       - Display system information and documentation',
+        '  inspect    - Display specific planet information',
         '  clear      - Clear terminal history',
       ],
     }),
 
+    // For each command, we get the fileSystem state slice
+    // Then we check if the file system is loaded and if the current node exists
+    // Finally we return a formatted output based on the current node's properties
     fastfetch: () => {
       const state = getState()
       const { root, currentNodeId } = state.fileSystem
@@ -76,6 +90,7 @@ const createCommands = (context: CommandContext) => {
       }
 
       const currentNode = findNode(root, currentNodeId)
+
       if (!currentNode) {
         return {
           success: false,
@@ -200,7 +215,7 @@ const createCommands = (context: CommandContext) => {
       clear: true,
     }),
 
-    render: () => {
+    render: (args) => {
       const state = getState()
       const { root, currentNodeId } = state.fileSystem
 
@@ -219,6 +234,23 @@ const createCommands = (context: CommandContext) => {
         }
       }
 
+      // At the root, `render` opens the full solar-system panel instead of navigating
+      // to a planet-specific route.
+      if (currentNodeId === root.id) {
+        if (args && args !== 'system') {
+          return {
+            success: false,
+            output: ['Usage: render', 'Optional alias: render system'],
+          }
+        }
+
+        return {
+          success: true,
+          output: ['Opening solar system render...'],
+          panel: 'system',
+        }
+      }
+
       if (!currentNode.renderable) {
         return {
           success: false,
@@ -226,6 +258,7 @@ const createCommands = (context: CommandContext) => {
         }
       }
 
+      // Non-root renders use the current directory name to decide which routed scene to open.
       const targetName = currentNode.name.toLowerCase()
       const config = SCENE_CONFIG[targetName as keyof typeof SCENE_CONFIG]
 
@@ -241,8 +274,8 @@ const createCommands = (context: CommandContext) => {
         output: [`Opening ${targetName} render...`],
         navigate: `/render/${targetName}`,
       }
-    }, 
-    
+    },
+
     inspect: () => {
       const state = getState()
       const { root, currentNodeId } = state.fileSystem
@@ -255,6 +288,7 @@ const createCommands = (context: CommandContext) => {
       }
 
       const currentNode = findNode(root, currentNodeId)
+
       if (!currentNode) {
         return {
           success: false,
@@ -268,7 +302,7 @@ const createCommands = (context: CommandContext) => {
         success: true,
         output: [`Opening inspect render regarding ${targetName}...`],
         navigate: `/inspect/${targetName}`,
-      } 
+      }
     }
   }
 
@@ -279,15 +313,22 @@ export function executeCommand(
   commandInput: string,
   context: CommandContext
 ): CommandResult {
+  // commandInput is the raw string the user typed into the terminal
+  // context is where we are in the file system 
   const parts = commandInput.split(' ')
   const command = parts[0]
   const args = parts.length > 1 ? parts.slice(1).join(' ') : undefined
 
+  // Build the command table using the provided context so each handler can call `getState()`
+  // when it needs to know where the user currently is in the tree.
   const commands = createCommands(context)
 
+  // If the parsed command exists, execute it and pass the optional argument string.
   if (command in commands)
     return commands[command]!(args)
 
+  // Unknown commands still return a normal result object so the terminal can render
+  // the error just like any other command output.
   return {
     success: false,
     output: [`Command not found: ${commandInput}`, 'Type "help" for available commands'],

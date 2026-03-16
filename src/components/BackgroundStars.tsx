@@ -2,11 +2,15 @@ import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 
 export default function BackgroundStars() {
+
+  // Create a ref to the div that will serve as the mount point for the Three.js renderer
   const mountRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     const mountNode = mountRef.current
-    if (!mountNode) return
+
+    if (!mountNode)
+      return
 
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100)
@@ -16,7 +20,7 @@ export default function BackgroundStars() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     mountNode.appendChild(renderer.domElement)
 
-    const starCount = 1800
+    const starCount = 2000
     const starPositions = new Float32Array(starCount * 3)
     const starSizes = new Float32Array(starCount)
 
@@ -40,18 +44,22 @@ export default function BackgroundStars() {
       opacity: 0.9,
     })
 
+    // Point geometry for the stars, which will be rendered as points in the scene
     const stars = new THREE.Points(starsGeometry, starsMaterial)
     scene.add(stars)
 
+    // Haze geometry, which will be rendered as a separate layer of points to create a depth effect in the background
     const hazeGeometry = new THREE.BufferGeometry()
     const hazeCount = 220
     const hazePositions = new Float32Array(hazeCount * 3)
+
     for (let index = 0; index < hazeCount; index += 1) {
       const stride = index * 3
       hazePositions[stride] = (Math.random() - 0.5) * 60
       hazePositions[stride + 1] = (Math.random() - 0.5) * 30
       hazePositions[stride + 2] = (Math.random() - 0.5) * 40
     }
+
     hazeGeometry.setAttribute('position', new THREE.BufferAttribute(hazePositions, 3))
 
     const hazeMaterial = new THREE.PointsMaterial({
@@ -61,13 +69,16 @@ export default function BackgroundStars() {
       transparent: true,
       opacity: 0.18,
     })
+
     const haze = new THREE.Points(hazeGeometry, hazeMaterial)
     scene.add(haze)
 
     const resize = () => {
       const width = mountNode.clientWidth
       const height = mountNode.clientHeight
-      if (height === 0) return
+
+      if (height === 0)
+        return
 
       camera.aspect = width / height
       camera.updateProjectionMatrix()
@@ -85,10 +96,14 @@ export default function BackgroundStars() {
       haze.rotation.x += 0.00004
 
       const positions = starsGeometry.attributes.position.array as Float32Array
+
       for (let index = 0; index < starCount; index += 1) {
+
         const zIndex = index * 3 + 2
         positions[zIndex] += 0.02
-        if (positions[zIndex] > 18) positions[zIndex] = -32
+
+        if (positions[zIndex] > 18)
+          positions[zIndex] = -32
       }
       starsGeometry.attributes.position.needsUpdate = true
 
@@ -97,6 +112,7 @@ export default function BackgroundStars() {
     }
     animate()
 
+    // Clean up
     return () => {
       window.cancelAnimationFrame(frameId)
       window.removeEventListener('resize', resize)
@@ -105,11 +121,13 @@ export default function BackgroundStars() {
       hazeGeometry.dispose()
       hazeMaterial.dispose()
       renderer.dispose()
-      if (renderer.domElement.parentNode === mountNode) {
+
+      if (renderer.domElement.parentNode === mountNode)
         mountNode.removeChild(renderer.domElement)
-      }
     }
   }, [])
 
+  // Return the div that will serve as the mount point for the Three.js renderer, 
+  // with an aria-hidden attribute to indicate that it's purely decorative 
   return <div className="background-stars" ref={mountRef} aria-hidden="true" />
 }
