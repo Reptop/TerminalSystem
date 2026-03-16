@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import type { SubmitEventHandler, ReactNode } from 'react'
 import { executeCommand, type CommandResult } from '../utils/commandHandler'
+import type { RootState } from '../store/store'
 
 // Created a new type to act as the argument type for the CommandPrompt component
 type CommandPromptProps = {
@@ -31,6 +33,9 @@ export default function CommandPrompt({ onExecute, children }: CommandPromptProp
   // Ref to the terminal output div for auto-scrolling
   const terminalOutputRef = useRef<HTMLDivElement>(null)
 
+  // Get the Redux state for file system
+  const fileSystemState = useSelector((state: RootState) => state.fileSystem)
+
   // Auto-scroll to bottom when history changes
   useEffect(() => {
     if (terminalOutputRef.current) {
@@ -47,8 +52,10 @@ export default function CommandPrompt({ onExecute, children }: CommandPromptProp
     if (!trimmedCommand)
       return
 
-    // Execute the command
-    const result: CommandResult = executeCommand(trimmedCommand)
+    // Execute the command with Redux context
+    const result: CommandResult = executeCommand(trimmedCommand, {
+      getState: () => ({ fileSystem: fileSystemState }) as RootState
+    })
 
     // Add command to terminal history
     setHistory((prev) => [
