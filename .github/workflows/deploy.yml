@@ -25,11 +25,10 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: 24        # ← bumped from 20
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install           # ← changed from npm ci
 
       - name: Build
         run: npm run build
